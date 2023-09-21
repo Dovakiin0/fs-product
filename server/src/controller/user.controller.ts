@@ -1,100 +1,69 @@
-import type { Response } from "express";
-import User from "../models/User";
-import asyncHandler from "express-async-handler";
-import { generateJWT } from "../helper/jwt";
+import prisma from "../config/prismaClient";
+import { OmitedUser, User } from "../types";
+import { generateJWT, hashPassword, comparePwd } from "../helper/util";
+import { Response } from "express";
 import { IRequest } from "../types/IRequest";
 
-/* 
- @Desc Get current logged in user
- @Route /api/auth/@me
- @Method GET
+/**
+ * @
  */
-const getMe = asyncHandler(async (req: IRequest, res: Response) => {
-  res.status(200).json(req.user);
-});
-
-/* 
- @Desc Login 
- @Route /api/auth/
- @Method POST
- */
-const login = asyncHandler(async (req: IRequest, res: Response) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
-
-  if (!user) {
-    // if no user found
-    res.status(401);
-    throw new Error("Username or password is incorrect");
+const registerUser = async (req: IRequest, res: Response) => {
+  const userBody: User = req.body;
+  if (!userBody.email || !userBody.password) {
+    return res
+      .status(400)
+      .json({ message: "Please provide email and password" });
   }
-
-  if (await user.comparePassword(password)) {
-    const expireDate = 7 * 24 * 60 * 60 * 1000; // 7 days
-
-    res
-      .status(200)
-      .cookie("access_token", generateJWT(user._id), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        expires: new Date(Date.now() + expireDate),
-      })
-      .json({
-        user: {
-          id: user._id,
-          username: user.username,
-        },
-      });
-  } else {
-    res.status(401);
-    throw new Error("Username or password incorrect");
-  }
-});
-
-/* 
-  @Desc Register new User
-  @Route /api/auth/register
-  @Method POST
-*/
-const registerUser = asyncHandler(async (req: IRequest, res: Response) => {
-  const { username, password } = req.body;
-
-  const userExists = await User.findOne({ username });
-  if (userExists) {
-    res.status(409);
-    throw new Error("User already exists");
-  }
-
-  const user = new User({
-    username,
-    password,
+  //check if user already exists
+  const userExist = await prisma.user.findUnique({
+    where: { email: userBody.email },
+    select: { email: true },
   });
 
-  await user.save();
+  if (userExist) {
+    return res.status(409).json({ message: "User already exists" });
+  }
 
-  const expireDate = 7 * 24 * 60 * 60 * 1000; // 7 days
-  res
+  const hshPwd = hashPassword(userBody.password);
+
+  const user: User = await prisma.user.create({
+    data: {
+      username: userBody.username,
+      email: userBody.email,
+      password: hshPwd,
+    },
+  });
+
+  return res
     .status(201)
-    .cookie("access_token", generateJWT(user._id), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(Date.now() + expireDate),
-    })
-    .json({
-      user: {
-        id: user._id,
-        username: user.username,
-      },
-    });
-});
+    .json({ token: generateJWT(user.id), user: user as OmitedUser });
+};
 
-/* 
-  @Desc Clears the cookie and logs out the user
-  @Route /api/auth/logout
-  @Method POST
-*/
-const logout = asyncHandler(async (req: IRequest, res: Response) => {
-  res.clearCookie("access_token");
-  res.status(200).json({ message: "Logged out successfully" });
-});
+const loginUser = async (req: IRequest, res: Response) => {
+  const { email, password } = req.body;
 
-export { registerUser, login, logout, getMe };
+  // check if user exist:s
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid Credentials" });
+  }
+
+  if (user.password && !comparePwd(password, user.password)) {
+    return res.status(400).json({ message: "Incorrect Email or Password" });
+  }
+
+  res
+    .status(200)
+    .json({ token: generateJWT(user.id), user: user as OmitedUser });
+};
+
+const getMe = async (req: IRequest, res: Response) => {
+  res.status(200).json(req.user);
+};
+
+export { loginUser, registerUser, getMe };

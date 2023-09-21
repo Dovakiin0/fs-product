@@ -7,7 +7,7 @@ export const hashPassword = (password: string): string => {
   return bcrypt.hashSync(password, salt);
 };
 
-export const generateJWT = (id: string): string => {
+export const generateJWT = (id: number): string => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: "30d",
   });

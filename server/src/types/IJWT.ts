@@ -1,3 +1,3 @@
 export interface IJWT {
-  id: string;
+  id: number;
 }
