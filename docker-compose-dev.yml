@@ -1,0 +1,30 @@
+version: "3"
+services:
+  server:
+    container_name: "fs-product_server_dev"
+    build:
+      context: ./server/
+      target: development
+    restart: always
+    ports:
+      - "3030:3030"
+    env_file:
+      - ./server/.env
+    depends_on:
+      - db
+
+  db:
+    container_name: "fs-product_Database"
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=fs-product
+      - POSTGRES_USER=postgres
+      - PPOSTGRES_PASSWORD=postgresadmin
+    volumes:
+      - db-dev-data:/var/lib/postgresql/data
+
+volumes:
+  db-dev-data:

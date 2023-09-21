@@ -38,7 +38,7 @@ describe("Authentication", () => {
     };
     const res = await supertest(app).post("/api/auth").send(payload);
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe("Invalid Credentials");
+    expect(res.body.message).toBe("Incorrect Email or Password");
   });
 
   it("POST /register - should return 201 if user is registered", async () => {
@@ -59,6 +59,6 @@ describe("Authentication", () => {
     };
     const res = await supertest(app).post("/api/auth/register").send(payload);
     expect(res.status).toBe(409);
-    expect(res.body.message).toBe("User already exists");
+    expect(res.body.message).toBe("User already Exists");
   });
 });

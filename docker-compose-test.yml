@@ -1,0 +1,32 @@
+version: "3"
+services:
+  server:
+    container_name: "fs-product_test"
+    build:
+      context: ./server/
+      target: test
+    ports:
+      - "3030:3030"
+    environment:
+      - MONGO_URI=mongodb://mongo_db:27017/TMpro_test
+      - JWT_SECRET=verysecretkey
+      - NODE_ENV=test
+    depends_on:
+      - mongo_db
+    command: [ "npm", "test" ]
+
+  db:
+    container_name: "fs-product_Database"
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=fs-product-test
+      - POSTGRES_USER=postgres
+      - PPOSTGRES_PASSWORD=postgresadmin
+    volumes:
+      - db-test-data:/var/lib/postgresql/data
+
+volumes:
+  db-test-data:

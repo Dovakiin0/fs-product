@@ -3,16 +3,17 @@ import { OmitedUser, User } from "../types";
 import { generateJWT, hashPassword, comparePwd } from "../helper/util";
 import { Response } from "express";
 import { IRequest } from "../types/IRequest";
+import asyncHandler from "express-async-handler";
 
 /**
  * @
  */
-const registerUser = async (req: IRequest, res: Response) => {
+const registerUser = asyncHandler(async (req: IRequest, res: Response) => {
   const userBody: User = req.body;
   if (!userBody.email || !userBody.password) {
-    return res
-      .status(400)
-      .json({ message: "Please provide email and password" });
+    res.status(400);
+
+    throw new Error("You must enter email and password");
   }
   //check if user already exists
   const userExist = await prisma.user.findUnique({
@@ -21,7 +22,8 @@ const registerUser = async (req: IRequest, res: Response) => {
   });
 
   if (userExist) {
-    return res.status(409).json({ message: "User already exists" });
+    res.status(409);
+    throw new Error("User already Exists");
   }
 
   const hshPwd = hashPassword(userBody.password);
@@ -34,12 +36,12 @@ const registerUser = async (req: IRequest, res: Response) => {
     },
   });
 
-  return res
+  res
     .status(201)
     .json({ token: generateJWT(user.id), user: user as OmitedUser });
-};
+});
 
-const loginUser = async (req: IRequest, res: Response) => {
+const loginUser = asyncHandler(async (req: IRequest, res: Response) => {
   const { email, password } = req.body;
 
   // check if user exist:s
@@ -50,20 +52,22 @@ const loginUser = async (req: IRequest, res: Response) => {
   });
 
   if (!user) {
-    return res.status(400).json({ message: "Invalid Credentials" });
+    res.status(400);
+    throw new Error("Incorrect Email or Password");
   }
 
   if (user.password && !comparePwd(password, user.password)) {
-    return res.status(400).json({ message: "Incorrect Email or Password" });
+    res.status(400);
+    throw new Error("Incorrect Email or Password");
   }
 
   res
     .status(200)
     .json({ token: generateJWT(user.id), user: user as OmitedUser });
-};
+});
 
-const getMe = async (req: IRequest, res: Response) => {
+const getMe = asyncHandler(async (req: IRequest, res: Response) => {
   res.status(200).json(req.user);
-};
+});
 
 export { loginUser, registerUser, getMe };

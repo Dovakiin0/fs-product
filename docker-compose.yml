@@ -1,0 +1,11 @@
+version: "3"
+services:
+  server:
+    container_name: "fs-product_server"
+    build:
+      context: ./server/
+    restart: always
+    ports:
+      - "5002:5002"
+    env_file:
+      - .env.production

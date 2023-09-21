@@ -46,6 +46,9 @@ devDependencies:
   '@types/jsonwebtoken':
     specifier: ^9.0.3
     version: 9.0.3
+  '@types/morgan':
+    specifier: ^1.9.5
+    version: 1.9.5
   '@types/node':
     specifier: ^20.6.3
     version: 20.6.3
@@ -863,6 +866,12 @@ packages:
 
   /@types/mime@3.0.1:
     resolution: {integrity: sha512-Y4XFY5VJAuw0FgAqPNd6NNoV44jbq9Bz2L7Rh/J6jLTiHBSBJa9fxqQIvkIld4GsoDOcCbvzOUAbLPsSKKg+uA==}
+    dev: true
+
+  /@types/morgan@1.9.5:
+    resolution: {integrity: sha512-5TgfIWm0lcTGnbCZExwc19dCOMOMmAiiBZQj8Ko3NRxsVDgRxf+AEGRQTqNVA5Yh2xfdWp4clbAEMbYP+jkOqg==}
+    dependencies:
+      '@types/node': 20.6.3
     dev: true
 
   /@types/node@20.6.3:
