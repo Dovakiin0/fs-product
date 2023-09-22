@@ -4,20 +4,22 @@ import {
   createCartItem,
   increase,
   decrease,
+  clearCart,
 } from "../store/reducers/cartSlice";
-import { ICart } from "../types/ICart";
+import { IProduct } from "../types/IProduct";
 
-export default function useProduct() {
+export default function useCart() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState();
   const { cart, totalPrice } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
 
-  const addCartItem = (value: ICart) => {
+  const addCartItem = (value: IProduct) => {
     try {
       setLoading(true);
       dispatch(createCartItem(value));
-    } catch (error) {
+    } catch (err: any) {
+      alert(err.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -27,7 +29,8 @@ export default function useProduct() {
     try {
       setLoading(true);
       dispatch(increase(productId));
-    } catch (error) {
+    } catch (err: any) {
+      alert(err.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -37,7 +40,19 @@ export default function useProduct() {
     try {
       setLoading(true);
       dispatch(decrease(productId));
-    } catch (error) {
+    } catch (err: any) {
+      alert(err.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearItems = () => {
+    try {
+      setLoading(true);
+      dispatch(clearCart);
+    } catch (err: any) {
+      alert(err.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -50,5 +65,6 @@ export default function useProduct() {
     addCartItem,
     decreaseQuantity,
     increaseQuantity,
+    clearItems,
   };
 }

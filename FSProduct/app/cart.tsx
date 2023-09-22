@@ -1,21 +1,47 @@
 import { StatusBar } from "expo-status-bar";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, ScrollView, StyleSheet } from "react-native";
 
-import EditScreenInfo from "../components/EditScreenInfo";
 import { Text, View } from "../components/Themed";
+import useCart from "../hooks/useCart";
+import CartCard from "../components/CartCard";
+import { Button } from "react-native-paper";
+import useOrder from "../hooks/useOrder";
 
-export default function ModalScreen() {
+export default function CartScreen() {
+  const { cart, totalPrice, increaseQuantity, decreaseQuantity, clearItems } =
+    useCart();
+  const { createOrder } = useOrder();
+
+  const handleCreateOrder = () => {
+    let orderItem = cart.map((cartItem) => ({
+      productId: cartItem.product.id,
+      quantity: cartItem.quantity,
+      total: cartItem.quantity * cartItem.total,
+    }));
+
+    clearItems();
+
+    createOrder(orderItem);
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Your Cart</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <EditScreenInfo path="app/modal.tsx" />
+      <View>
+        <Text style={styles.totalText}>Total Price: {totalPrice}</Text>
 
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
+        <Button mode="contained" onPress={handleCreateOrder}>
+          Checkout
+        </Button>
+      </View>
+      <ScrollView style={styles.container}>
+        {cart.map((cartItem, i) => (
+          <CartCard
+            cart={cartItem}
+            key={i}
+            increaseQuantity={increaseQuantity}
+            decreaseQuantity={decreaseQuantity}
+          />
+        ))}
+      </ScrollView>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );
@@ -23,17 +49,14 @@ export default function ModalScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "column",
+    gap: 5,
   },
-  title: {
+  totalText: {
+    marginTop: 10,
+    marginBottom: 10,
     fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+    lineHeight: 24,
+    textAlign: "center",
   },
 });

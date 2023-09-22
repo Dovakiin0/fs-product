@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { IProduct } from "../types/IProduct";
 import { client } from "../config/client";
 import { useAppDispatch, useAppSelector } from "./useReducer";
 import { setProducts } from "../store/reducers/productSlice";
@@ -14,17 +13,17 @@ export default function useProduct() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await client.get("/api/products");
-      if (response.status === 200) {
-        dispatch(setProducts(response.data));
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+  const fetchProducts = () => {
+    setLoading(true);
+    client
+      .get("/api/products")
+      .then((response) => {
+        if (response.status === 200) {
+          dispatch(setProducts(response.data));
+        }
+      })
+      .catch((err) => alert(err.response.data.message))
+      .finally(() => setLoading(false));
   };
 
   return { loading, products, fetchProducts };

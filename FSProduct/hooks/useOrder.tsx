@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { client } from "../config/client";
+import { protectedClient } from "../config/client";
 import { useAppDispatch, useAppSelector } from "./useReducer";
 import { setOrders } from "../store/reducers/orderSlice";
 import { IOrderRequest } from "../types/IOrder";
 
-export default function useProduct() {
+export default function useOrder() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState();
   const { orders } = useAppSelector((state) => state.order);
@@ -14,29 +14,30 @@ export default function useProduct() {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const response = await client.get("/api/orders");
-      if (response.status === 200) {
-        dispatch(setOrders(response.data));
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+  const fetchOrders = () => {
+    setLoading(true);
+    protectedClient
+      .get("/api/orders")
+      .then((response) => {
+        if (response.status === 200) {
+          dispatch(setOrders(response.data));
+        }
+      })
+      .catch((err) => alert(err.response.data.message))
+      .finally(() => setLoading(false));
   };
 
-  const createOrder = async (value: IOrderRequest) => {
-    try {
-      setLoading(true);
-      const response = await client.post("/api/orders", value);
-      if (response.status === 201) {
-        fetchOrders();
-      }
-    } catch (error) {
-    } finally {
-    }
+  const createOrder = (value: IOrderRequest[]) => {
+    setLoading(true);
+    protectedClient
+      .post("/api/orders", { carts: value })
+      .then((response) => {
+        if (response.status === 201) {
+          fetchOrders();
+        }
+      })
+      .catch((err) => alert(err.response.data.message))
+      .finally(() => setLoading(false));
   };
 
   return { loading, orders, fetchOrders, createOrder };

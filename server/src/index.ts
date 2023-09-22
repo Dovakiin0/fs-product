@@ -3,9 +3,10 @@ import server from "./server";
 
 dotenv.config(); // initialize dotenv
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || "3030", 10);
+const HOST = "192.168.1.105";
 
 // Start the server
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Server running on port ${HOST}:${PORT}`);
 });

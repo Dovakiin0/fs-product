@@ -2,9 +2,32 @@ import axios, { AxiosInstance } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const client: AxiosInstance = axios.create({
-  baseURL: "http://localhost:3030",
+  baseURL: process.env.EXPO_PUBLIC_BASE_URI,
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${AsyncStorage.getItem("access_token")}`,
   },
 });
+
+export const protectedClient: AxiosInstance = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_BASE_URI,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+protectedClient.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Error getting access token from AsyncStorage:", error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
