@@ -19,7 +19,7 @@ then run
 npm run dev
 ```
 
-go to `FSProduct` and open `.env` file and replace the value with your HOST ip address. run 
+go to `FSProduct` and open `.env` file and replace the value with your HOST ip address. You can also rename `.env.production` to `.env` and delete the old `.env`. then run
 ```
 npm install
 npm start
