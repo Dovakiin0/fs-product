@@ -5,6 +5,17 @@ go to `server/` and open `.env.example` fill in the details. the database is pos
 run
 ```bash
 npm i
+```
+then migrate database with
+```
+npx prisma migrate deploy
+```
+and seed products
+```
+npx prisma db seed
+```
+then run 
+```
 npm run dev
 ```
 
