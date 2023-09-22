@@ -24,14 +24,14 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="product"
         options={{
           title: "Products",
           tabBarIcon: ({ color }) => (
             <SimpleLineIcons name="handbag" size={25} color={color} />
           ),
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/cart" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <AntDesign
@@ -47,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="order"
         options={{
           title: "Orders",
           tabBarIcon: ({ color }) => (
