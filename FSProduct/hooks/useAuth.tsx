@@ -58,18 +58,9 @@ export default function useAuth() {
       .finally(() => setLoading(false));
   };
 
-  const logoutUser = () => {
-    setLoading(true);
-    protectedClient
-      .post("/api/auth/logout", {})
-      .then(async (response) => {
-        if (response.status === 200) {
-          dispatch(logout);
-          await AsyncStorage.removeItem("access_token");
-        }
-      })
-      .catch((err) => alert(err.response.data.message))
-      .finally(() => setLoading(false));
+  const logoutUser = async () => {
+    await AsyncStorage.removeItem("access_token");
+    dispatch(logout);
   };
 
   return {

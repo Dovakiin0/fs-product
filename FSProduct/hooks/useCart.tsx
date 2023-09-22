@@ -10,7 +10,6 @@ import { IProduct } from "../types/IProduct";
 
 export default function useCart() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState();
   const { cart, totalPrice } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
 
@@ -50,7 +49,7 @@ export default function useCart() {
   const clearItems = () => {
     try {
       setLoading(true);
-      dispatch(clearCart);
+      dispatch(clearCart());
     } catch (err: any) {
       alert(err.response.data.message);
     } finally {

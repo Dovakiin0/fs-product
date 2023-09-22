@@ -4,9 +4,19 @@ import { Pressable, useColorScheme, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import Colors from "../../constants/Colors";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import useAuth from "../../hooks/useAuth";
+import { useEffect } from "react";
+import { router } from "expo-router";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { logoutUser, current, authenticated } = useAuth();
+
+  useEffect(() => {
+    if (current === null && !authenticated) {
+      router.replace("/login");
+    }
+  }, [current]);
 
   return (
     <Tabs
@@ -22,18 +32,41 @@ export default function TabLayout() {
             <SimpleLineIcons name="handbag" size={25} color={color} />
           ),
           headerRight: () => (
-            <Link href="/cart" asChild>
-              <Pressable>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: 10,
+              }}
+            >
+              <Link href="/cart" asChild>
+                <Pressable>
+                  {({ pressed }) => (
+                    <AntDesign
+                      name="shoppingcart"
+                      size={25}
+                      color={Colors[colorScheme ?? "light"].text}
+                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                    />
+                  )}
+                </Pressable>
+              </Link>
+              <Pressable
+                onPress={() => {
+                  logoutUser();
+                  router.replace("/");
+                }}
+              >
                 {({ pressed }) => (
                   <AntDesign
-                    name="shoppingcart"
+                    name="logout"
                     size={25}
                     color={Colors[colorScheme ?? "light"].text}
                     style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
               </Pressable>
-            </Link>
+            </View>
           ),
         }}
       />

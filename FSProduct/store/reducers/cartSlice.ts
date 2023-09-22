@@ -51,7 +51,8 @@ const cartSlice = createSlice({
       }
     },
     clearCart: (state) => {
-      state.totalPrice = 99999;
+      state.cart = [];
+      state.totalPrice = 0;
     },
   },
 });
